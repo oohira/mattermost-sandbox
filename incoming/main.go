@@ -67,11 +67,32 @@ func example3(url string) (string, error) {
 	})
 }
 
+// @see https://docs.mattermost.com/developer/message-attachments.html
+func example4(url string) (string, error) {
+	return post(url, map[string]interface{}{
+		"channel": "town-square",
+		"attachments": []map[string]string{
+			{
+				"fallback":    "test",
+				"color":       "#FF8000",
+				"pretext":     "This is optional pretext that shows above the attachment.",
+				"text":        "This is the text of the attachment. It should appear just above an image of the Mattermost logo. The left border of the attachment should be colored orange, and below the image it should include additional fields that are formatted in columns. At the top of the attachment, there should be an author name followed by a bolded title. Both the author name and the title should be hyperlinks.",
+				"author_name": "Mattermost",
+				"author_icon": "http://www.mattermost.org/wp-content/uploads/2016/04/icon_WS.png",
+				"author_link": "http://www.mattermost.org/",
+				"title":       "Example Attachment",
+				"title_link":  "http://docs.mattermost.com/developer/message-attachments.html",
+			},
+		},
+	})
+}
+
 func main() {
 	for _, f := range []func(string) (string, error){
 		example1,
 		example2,
 		example3,
+		example4,
 	} {
 		body, err := f(WEBHOOK_URL)
 		if err != nil {
