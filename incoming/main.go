@@ -13,7 +13,7 @@ const (
 	WEBHOOK_URL = "http://localhost:8065/hooks/ftcxcu4aypfutqby89yhpe7kze"
 )
 
-func post(url string, data map[string]string) (string, error) {
+func post(url string, data map[string]interface{}) (string, error) {
 	str, err := json.Marshal(data)
 	if err != nil {
 		return "", err
@@ -34,27 +34,49 @@ func post(url string, data map[string]string) (string, error) {
 }
 
 func example1(url string) (string, error) {
-	return post(url, map[string]string{
+	return post(url, map[string]interface{}{
 		"text": "Hello, this is some text\nThis is more text. :tada:",
 	})
 }
 
 func example2(url string) (string, error) {
-	return post(url, map[string]string{
+	return post(url, map[string]interface{}{
 		"channel":  "town-square",
 		"username": "test-automation",
 		"icon_url": "https://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
-		"text":     "#### Test results for July 27th, 2017\n@channel please review failed tests.\n\n| Component  | Tests Run   | Tests Failed                                   |\n|:-----------|:-----------:|:-----------------------------------------------|\n| Server     | 948         | :white_check_mark: 0                           |\n| Web Client | 123         | :warning: 2 [(see details)](http://linktologs) |\n| iOS Client | 78          | :warning: 3 [(see details)](http://linktologs) |",
+		"text": `#### Test results for July 27th, 2017
+@channel please review failed tests.
+
+| Component  | Tests Run   | Tests Failed                                   |
+|:-----------|:-----------:|:-----------------------------------------------|
+| Server     | 948         | :white_check_mark: 0                           |
+| Web Client | 123         | :warning: 2 [(see details)](http://linktologs) |
+| iOS Client | 78          | :warning: 3 [(see details)](http://linktologs) |`,
+	})
+}
+
+func example3(url string) (string, error) {
+	return post(url, map[string]interface{}{
+		"channel":    "town-square",
+		"username":   "Winning-bot",
+		"icon_emoji": "+1",
+		"text":       "#### We won a new deal!",
+		"props": map[string]string{
+			"card": "Salesforce Opportunity Information:\n\n [Opportunity Name](http://salesforce.com/OPPORTUNITY_ID)\n\n-Salesperson: **Bob McKnight** \n\n Amount: **$300,020.00**",
+		},
 	})
 }
 
 func main() {
-	_, err := example1(WEBHOOK_URL)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	_, err = example2(WEBHOOK_URL)
-	if err != nil {
-		log.Fatalln(err)
+	for _, f := range []func(string) (string, error){
+		example1,
+		example2,
+		example3,
+	} {
+		body, err := f(WEBHOOK_URL)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(body)
 	}
 }
